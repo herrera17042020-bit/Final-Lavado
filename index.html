@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El Rápido — Autolavado · Barbería</title>
+<meta name="theme-color" content="#17110D">
+<link rel="icon" type="image/png" href="assets/favicon.png">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+
+<!-- ==========================================================================
+     LOGIN (DEMO). Reemplaza al antiguo selector de interfaz.
+     ► Con backend real: el formulario llama a POST /api/auth/login (ver js/api.js → login).
+     ========================================================================== -->
+<div id="screen-login" class="hidden">
+  <div class="login-card">
+    <div class="login-brand login-brand--logo">
+      <img src="assets/logo-el-rapido.png" alt="El Rápido — Autolavado · Barbería">
+    </div>
+    <p class="login-tagline">Autolavado · Barbería</p>
+    <h2>Iniciar sesión</h2>
+    <p class="text-muted">Ingresa con tu usuario para acceder a tu panel.</p>
+    <form id="login-form" style="margin-top:22px" autocomplete="off" novalidate>
+      <div id="login-error" class="login-error hidden" role="alert"></div>
+      <div class="field"><label for="login-usuario">Usuario</label><input type="text" id="login-usuario" placeholder="Tu usuario" autocapitalize="none" autocomplete="username"></div>
+      <div class="field"><label for="login-password">Contraseña</label><input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"></div>
+      <div class="login-row"><span></span><a href="#" id="login-olvido">¿Olvidaste tu contraseña?</a></div>
+      <button type="submit" class="btn btn--primary btn--block" id="login-submit">Iniciar sesión</button>
+    </form>
+    <div class="login-demo-box">
+      <strong>Usuarios DEMO</strong>
+      <p class="small text-muted">Solo para el prototipo. No es seguridad de producción: las contraseñas reales las validará el backend.</p>
+      <div class="login-demo-row"><span>👑 <b>admin</b> / admin123 · Administrador</span><button type="button" class="btn btn--ghost btn--sm" data-demo-login="admin">Usar</button></div>
+      <div class="login-demo-row"><span>🧑‍🔧 <b>empleado</b> / empleado123 · Empleado (solo ventas)</span><button type="button" class="btn btn--ghost btn--sm" data-demo-login="empleado">Usar</button></div>
+      
+    </div>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     APLICACIÓN
+     ========================================================================== -->
+<div id="screen-app" class="hidden">
+
+  <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar__brand sidebar__brand--logo">
+      <img src="assets/logo-el-rapido.png" alt="El Rápido">
+      <p>Autolavado · Barbería</p>
+    </div>
+
+    <!-- Línea de negocio: cada área tiene su propio panel (como en el sistema actual del local). -->
+    <div class="sidebar__linea" role="tablist" aria-label="Línea de negocio">
+      <div class="sidebar__linea-label">Línea de negocio</div>
+      <div class="sidebar__linea-btns">
+        <button type="button" data-linea="autolavado" role="tab">🚗 Autolavado</button>
+        <button type="button" data-linea="barberia" role="tab">✂️ Barbería</button>
+      </div>
+    </div>
+
+    <nav class="sidebar__nav">
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Principal</div>
+        <a href="#" class="sidebar__link active" data-nav="dashboard"><span class="ic">📊</span> Dashboard</a>
+      </div>
+
+      <div class="sidebar__group" data-linea-grupo="autolavado">
+        <div class="sidebar__group-label">🚗 Autolavado</div>
+        <a href="#" class="sidebar__link" data-nav="autolavado-venta"><span class="ic">➕</span> Nueva venta</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-ventas"><span class="ic">🧾</span> Ventas</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-cierre"><span class="ic">💵</span> Cierre de caja</a>
+        <a href="#" class="sidebar__link" data-nav="membresias"><span class="ic">🎫</span> Membresías</a>
+        <a href="#" class="sidebar__link" data-nav="fidelidad"><span class="ic">⭐</span> Lealtad</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-clientes"><span class="ic">👥</span> Clientes</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-inventario"><span class="ic">📦</span> Inventario</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-servicios"><span class="ic">🧼</span> Servicios</a>
+        <a href="#" class="sidebar__link" data-nav="autolavado-promociones"><span class="ic">🏷️</span> Promociones</a>
+      </div>
+
+      <div class="sidebar__group" data-linea-grupo="barberia">
+        <div class="sidebar__group-label">💈 Barbería</div>
+        <a href="#" class="sidebar__link" data-nav="barberia-venta"><span class="ic">➕</span> Nueva venta</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-ventas"><span class="ic">🧾</span> Ventas</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-cierre"><span class="ic">💵</span> Cierre de caja</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-clientes"><span class="ic">👥</span> Clientes</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-servicios"><span class="ic">✂️</span> Servicios</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-inventario"><span class="ic">📦</span> Inventario</a>
+        <a href="#" class="sidebar__link" data-nav="barberia-promociones"><span class="ic">🏷️</span> Promociones</a>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Mi turno</div>
+        <a href="#" class="sidebar__link" data-nav="mis-ventas"><span class="ic">📅</span> Mi resumen</a>
+      </div>
+
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Terminales</div>
+        <a href="#" class="sidebar__link" data-terminal="autolavado"><span class="ic">🚗</span> Terminal Autolavado</a>
+        <a href="#" class="sidebar__link" data-terminal="barberia"><span class="ic">💈</span> Terminal Barbería</a>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Administración</div>
+        <a href="#" class="sidebar__link" data-nav="empleados"><span class="ic">🧑‍💼</span> Empleados</a>
+        <a href="#" class="sidebar__link" data-nav="usuarios"><span class="ic">🔐</span> Usuarios</a>
+        <a href="#" class="sidebar__link" data-nav="configuracion"><span class="ic">⚙️</span> Configuración</a>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Reportes</div>
+        <a href="#" class="sidebar__link" data-nav="reportes"><span class="ic">📈</span> Reportes</a>
+        <a href="#" class="sidebar__link" data-nav="cierres"><span class="ic">🏦</span> Cierres de caja</a>
+        <a href="#" class="sidebar__link" data-nav="estadisticas"><span class="ic">🗓️</span> Estadísticas</a>
+        <a href="#" class="sidebar__link" data-nav="actividad"><span class="ic">🕒</span> Actividad</a>
+      </div>
+
+      <div class="sidebar__group">
+        <div class="sidebar__group-label">Sistema</div>
+        <a href="#" class="sidebar__link" data-nav="notificaciones"><span class="ic">🔔</span> Notificaciones</a>
+        <a href="#" class="sidebar__link" data-nav="ayuda"><span class="ic">❓</span> Ayuda</a>
+      </div>
+    </nav>
+
+    <div class="sidebar__footer">
+      <div class="sidebar__user">
+        <div class="avatar avatar--sm" id="sidebar-avatar" style="background:#33271F;color:#F2E8CC">A</div>
+        <div><strong id="sidebar-name">Usuario</strong><span id="sidebar-rol">Rol</span></div>
+      </div>
+      <div class="sidebar__footer-actions">
+        <button type="button" data-nav="configuracion">⚙️ Config.</button>
+        <button type="button" data-logout>↩️ Salir</button>
+      </div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="demo-banner">Prototipo · <strong>Datos y autenticación DEMO</strong> · Sin base de datos ni servidor real (los cambios se pierden al recargar)</div>
+
+    <header class="topbar">
+      <div class="topbar__left">
+        <button class="icon-btn" id="btn-toggle-sidebar" aria-label="Abrir menú">☰</button>
+        <div>
+          <h2 id="page-title">Panel administrativo</h2>
+          <p id="page-subtitle">Resumen general del local</p>
+        </div>
+      </div>
+      <div class="topbar__right">
+        <div class="bell-wrap">
+          <button class="bell-btn" id="btn-notif-bell">🔔<span class="notif-dot hidden" id="notif-count">0</span></button>
+          <div class="notif-dropdown hidden" id="notif-dropdown">
+            <div class="notif-dropdown__head">Notificaciones</div>
+            <div id="notif-dropdown-list"></div>
+            <div class="notif-dropdown__foot"><a href="#" id="notif-view-all">Ver todas</a></div>
+          </div>
+        </div>
+        <div class="topbar__user">
+          <div class="avatar avatar--sm" id="topbar-avatar">AD</div>
+          <div class="topbar__user-txt"><strong id="topbar-name">Usuario</strong><small id="topbar-rol">Rol</small></div>
+          <button class="icon-btn" data-logout title="Cerrar sesión" aria-label="Cerrar sesión">⏻</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="content">
+
+      <!-- ============================= DASHBOARD ============================= -->
+      <section class="page" id="page-dashboard">
+        <div class="dash-controls">
+          <select id="select-negocio">
+            <option value="todos">Todo el local</option>
+            <option value="autolavado">🚗 Autolavado</option>
+            <option value="barberia">💈 Barbería</option>
+          </select>
+          <select id="select-periodo">
+            <option value="hoy">Hoy</option>
+            <option value="semana">Últimos 7 días</option>
+            <option value="mes" selected>Últimos 30 días</option>
+            <option value="anio">Últimos 12 meses</option>
+            <option value="personalizado">Personalizado</option>
+          </select>
+          <span id="dash-rango" class="dash-rango hidden"><input type="date" id="dash-desde"> → <input type="date" id="dash-hasta"></span>
+          <span class="text-muted small" id="dash-periodo-txt" style="margin-left:auto"></span>
+        </div>
+        <div class="kpi-grid" id="dash-kpis"></div>
+        <div class="chart-grid">
+          <div class="card"><h4>Ventas por día</h4><div class="chart-box"><canvas id="chart-ventas-periodo"></canvas></div></div>
+          <div class="card"><h4>Ventas por negocio</h4><div class="chart-box"><canvas id="chart-ventas-negocio"></canvas></div></div>
+        </div>
+        <div class="chart-grid--3">
+          <div class="card"><h4>Servicios más vendidos</h4><div class="chart-box chart-box--sm"><canvas id="chart-servicios-top"></canvas></div></div>
+          <div class="card"><h4>Tipos de vehículos</h4><div class="chart-box chart-box--sm"><canvas id="chart-vehiculos"></canvas></div></div>
+          <div class="card"><h4>Métodos de pago (monto)</h4><div class="chart-box chart-box--sm"><canvas id="chart-metodos-pago"></canvas></div></div>
+        </div>
+        <div class="chart-grid">
+          <div class="card"><h4>⚠️ Productos con bajo inventario</h4><div id="dash-alerta-inventario"></div></div>
+          <div class="card">
+            <div class="card-head"><h4>🕒 Actividad reciente</h4><a href="#" data-nav="actividad" class="small">Ver todo →</a></div>
+            <div id="dash-actividad-reciente"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================= AUTOLAVADO ============================= -->
+      <section class="page hidden" id="page-autolavado-venta">
+        <div class="section-tabs">
+          <a href="#" class="active" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div id="pos-root-autolavado"></div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-ventas">
+        <div class="section-tabs">
+          <a href="#" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" class="active" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div class="filters-row">
+          <input type="date" id="filtro-fecha-autolavado">
+          <select id="filtro-empleado-autolavado"></select>
+          <select id="filtro-servicio-autolavado"></select>
+          <select id="filtro-pago-autolavado"><option value="">Todos los métodos</option><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option><option value="fidelidad">Saldo fidelidad</option><option value="mixto">Pago mixto</option></select>
+          <input type="text" id="filtro-cliente-autolavado" placeholder="Buscar cliente...">
+        </div>
+        <div class="list-count" id="contador-ventas-autolavado">0 ventas</div>
+        <div class="card table-card"><div class="table-wrap">
+          <table class="table"><thead><tr><th>Factura</th><th>Fecha</th><th>Cliente</th><th>Conceptos</th><th>Empleado</th><th>Total</th><th>Pago</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tabla-ventas-autolavado"></tbody></table>
+        </div></div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-clientes">
+        <div class="section-tabs">
+          <a href="#" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" class="active" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div id="clientes-root-autolavado"></div>
+      </section>
+
+      <section class="page hidden" id="page-mis-ventas">
+        <div class="filters-row">
+          <select id="mv-negocio"><option value="todos">Autolavado y barbería</option><option value="autolavado">🚗 Autolavado</option><option value="barberia">💈 Barbería</option></select>
+        </div>
+        <div class="kpi-mini-grid" id="mv-kpis-mes"></div>
+        <div class="mv-layout">
+          <div class="card mv-cal-card">
+            <div class="mv-cal-head"><button class="icon-btn" id="mv-prev" aria-label="Mes anterior">‹</button><strong id="mv-mes"></strong><button class="icon-btn" id="mv-next" aria-label="Mes siguiente">›</button></div>
+            <div class="mv-cal" id="mv-cal"></div>
+            <p class="small text-muted" style="margin-top:8px">El número de cada día es la cantidad de ventas que registraste.</p>
+          </div>
+          <div class="card">
+            <h4 id="mv-dia-titulo">Hoy</h4>
+            <div class="kpi-mini-grid" id="mv-kpis" style="margin-top:10px"></div>
+            <h4 style="margin-top:14px">💳 Formas de pago</h4><div class="mv-metodos" id="mv-metodos"></div>
+            <h4 style="margin-top:14px">👥 Clientes atendidos</h4><div class="mv-clientes" id="mv-clientes"></div>
+          </div>
+        </div>
+        <div class="card table-card" style="margin-top:16px"><div class="table-wrap">
+          <table class="table"><thead><tr><th>Factura</th><th>Hora</th><th>Área</th><th>Cliente</th><th>Conceptos</th><th>Cobro</th><th>Total</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="mv-tabla"></tbody></table>
+        </div></div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-cierre"><div id="caja-root-autolavado"></div></section>
+      <section class="page hidden" id="page-barberia-cierre"><div id="caja-root-barberia"></div></section>
+
+      <section class="page hidden" id="page-cierres">
+        <div class="filters-row">
+          <select id="cc-area"><option value="">Todas las áreas</option><option value="autolavado">🚗 Autolavado</option><option value="barberia">💈 Barbería</option></select>
+          <select id="cc-estado"><option value="">Todos los estados</option><option>Cuadrado</option><option>Sobrante</option><option>Faltante</option></select>
+          <input type="date" id="cc-desde" aria-label="Desde"><input type="date" id="cc-hasta" aria-label="Hasta">
+        </div>
+        <div class="kpi-mini-grid" id="cc-kpis"></div>
+        <div class="card table-card"><div class="table-wrap">
+          <table class="table"><thead><tr><th>Cierre</th><th>Fecha</th><th>Área</th><th>Cerró</th><th>Facturas</th><th>Ventas</th><th>Efectivo esperado</th><th>Contado</th><th>Diferencia</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="cc-tabla"></tbody></table>
+        </div></div>
+      </section>
+
+      <section class="page hidden" id="page-fidelidad">
+        <div class="kpi-mini-grid" id="lt-kpis"></div>
+        <div id="lt-programas-admin"></div>
+        <div class="card lt-buscar">
+          <label for="lt-buscar" class="lt-buscar__label">🔍 Buscar cliente</label>
+          <div class="lt-buscar__row"><input type="text" id="lt-buscar" placeholder="Nombre, teléfono o placa..." autocomplete="off">
+          <select id="lt-filtro" class="lt-solo-admin"><option value="">Todos los clientes</option><option value="premio">Con premio disponible</option><option value="membresia">Con membresía vigente</option><option value="progreso">Con lavadas acumuladas</option></select></div>
+          <div id="lt-resultados"></div>
+        </div>
+        <div id="lt-detalle"></div>
+        <div id="lt-vacio"></div>
+        <div class="lt-solo-admin" id="lt-lista-admin">
+          <div class="list-count" id="lt-contador"></div>
+          <div class="card table-card"><div class="table-wrap">
+            <table class="table"><thead><tr><th>Cliente</th><th id="lt-th-p1">Programa 1</th><th id="lt-th-p2">Programa 2</th><th>Premios disponibles</th><th>Membresías</th><th></th></tr></thead>
+            <tbody id="lt-tabla"></tbody></table>
+          </div></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="page-membresias">
+        <div class="mb-head"><div class="mb-planes" id="mb-planes"></div><div class="mb-acciones"><button class="btn btn--primary mb-vender" id="mb-vender">＋ Vender membresía</button><button class="btn btn--ghost hidden" id="mb-nuevo-plan">＋ Nueva membresía (plan)</button></div></div>
+        <div class="lt-tabs mb-tabs hidden" id="mb-tabs"><button data-mbtab="lista" class="active">🎫 Membresías</button><button data-mbtab="registro">🧾 Registro de ventas</button></div>
+        <div id="mb-registro" class="hidden"></div>
+        <div id="mb-vista-lista">
+        <div class="filters-row">
+          <div class="chip-group" id="mb-chips"></div>
+          <input type="text" id="mb-buscar" placeholder="Buscar por cliente, código o placa...">
+        </div>
+        <div class="list-count" id="mb-contador"></div>
+        <div class="mb-grid" id="mb-grid"></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-inventario">
+        <div class="section-tabs">
+          <a href="#" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" class="active" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div id="inv-root-autolavado"></div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-servicios">
+        <div class="section-tabs">
+          <a href="#" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" class="active" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div id="serv-root-autolavado"></div>
+      </section>
+
+      <section class="page hidden" id="page-autolavado-promociones">
+        <div class="section-tabs">
+          <a href="#" data-nav="autolavado-venta">Nueva venta</a>
+          <a href="#" data-nav="autolavado-ventas">Ventas</a>
+          <a href="#" data-nav="autolavado-clientes">Clientes</a>
+          <a href="#" data-nav="autolavado-fidelidad">Fidelidad</a>
+          <a href="#" data-nav="autolavado-inventario">Inventario</a>
+          <a href="#" data-nav="autolavado-servicios">Servicios</a>
+          <a href="#" class="active" data-nav="autolavado-promociones">Promociones</a>
+        </div>
+        <div id="promo-root-autolavado"></div>
+      </section>
+
+      <!-- ============================= BARBERÍA ============================= -->
+      <section class="page hidden" id="page-barberia-venta">
+        <div class="section-tabs">
+          <a href="#" class="active" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div id="pos-root-barberia"></div>
+      </section>
+
+      <section class="page hidden" id="page-barberia-ventas">
+        <div class="section-tabs">
+          <a href="#" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" class="active" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div class="filters-row">
+          <input type="date" id="filtro-fecha-barberia">
+          <select id="filtro-empleado-barberia"></select>
+          <select id="filtro-servicio-barberia"></select>
+          <select id="filtro-pago-barberia"><option value="">Todos los métodos</option><option value="efectivo">Efectivo</option><option value="tarjeta">Tarjeta</option><option value="transferencia">Transferencia</option><option value="fidelidad">Saldo fidelidad</option><option value="mixto">Pago mixto</option></select>
+          <input type="text" id="filtro-cliente-barberia" placeholder="Buscar cliente...">
+        </div>
+        <div class="list-count" id="contador-ventas-barberia">0 ventas</div>
+        <div class="card table-card"><div class="table-wrap">
+          <table class="table"><thead><tr><th>Factura</th><th>Fecha</th><th>Cliente</th><th>Conceptos</th><th>Barbero</th><th>Total</th><th>Pago</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="tabla-ventas-barberia"></tbody></table>
+        </div></div>
+      </section>
+
+      <section class="page hidden" id="page-barberia-clientes">
+        <div class="section-tabs">
+          <a href="#" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" class="active" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div id="clientes-root-barberia"></div>
+      </section>
+
+      <section class="page hidden" id="page-barberia-servicios">
+        <div class="section-tabs">
+          <a href="#" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" class="active" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div id="serv-root-barberia"></div>
+      </section>
+
+      <section class="page hidden" id="page-barberia-inventario">
+        <div class="section-tabs">
+          <a href="#" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" class="active" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div id="inv-root-barberia"></div>
+      </section>
+
+      <section class="page hidden" id="page-barberia-promociones">
+        <div class="section-tabs">
+          <a href="#" data-nav="barberia-venta">Nueva venta</a>
+          <a href="#" data-nav="barberia-ventas">Ventas</a>
+          <a href="#" data-nav="barberia-clientes">Clientes</a>
+          <a href="#" data-nav="barberia-servicios">Servicios</a>
+          <a href="#" data-nav="barberia-inventario">Inventario</a>
+          <a href="#" class="active" data-nav="barberia-promociones">Promociones</a>
+        </div>
+        <div id="promo-root-barberia"></div>
+      </section>
+
+      <!-- ============================= ADMINISTRACIÓN ============================= -->
+      <section class="page hidden" id="page-empleados">
+        <div class="toolbar">
+          <input type="text" id="emp-buscar" placeholder="Buscar empleado...">
+          <select id="emp-filtro-negocio">
+            <option value="">Todo el local</option>
+            <option value="autolavado">🚗 Autolavado</option>
+            <option value="barberia">💈 Barbería</option>
+          </select>
+          <button class="btn btn--primary" id="emp-nuevo">+ Nuevo empleado</button>
+        </div>
+        <div class="grid-cards" id="emp-grid"></div>
+      </section>
+
+      <section class="page hidden" id="page-usuarios">
+        <div class="toolbar">
+          <p class="text-muted small" style="flex:1">Controla quién tiene acceso a este panel administrativo.</p>
+          <button class="btn btn--primary" id="usuarios-nuevo">+ Invitar usuario</button>
+        </div>
+        <div class="card table-card"><div class="table-wrap">
+          <table class="table"><thead><tr><th>Usuario</th><th>Correo</th><th>Rol</th><th>Estado</th><th></th></tr></thead>
+          <tbody id="usuarios-tabla"></tbody></table>
+        </div></div>
+      </section>
+
+      <section class="page hidden" id="page-configuracion">
+        <div id="config-root"></div>
+      </section>
+
+      <!-- ============================= REPORTES / ESTADÍSTICAS ============================= -->
+      <section class="page hidden" id="page-reportes">
+        <div id="reportes-root"></div>
+      </section>
+
+      <section class="page hidden" id="page-estadisticas">
+        <div class="card">
+          <div class="cal-head">
+            <button class="icon-btn" id="cal-prev">←</button>
+            <h4 id="cal-label">Mes</h4>
+            <button class="icon-btn" id="cal-next">→</button>
+          </div>
+          <div class="cal-grid" id="cal-grid"></div>
+        </div>
+        <div class="card" style="margin-top:14px">
+          <h4 id="cal-dia-titulo">Ventas del día</h4>
+          <div class="cal-day-stats">
+            <div><strong id="cal-dia-cantidad">0</strong><span>Cantidad de ventas</span></div>
+            <div><strong id="cal-dia-ingresos">C$ 0</strong><span>Ingresos</span></div>
+            <div><strong id="cal-dia-servicios">0</strong><span>Servicios realizados</span></div>
+          </div>
+          <div id="cal-dia-pagos" style="margin-bottom:10px"></div>
+          <div id="cal-dia-lista"></div>
+        </div>
+      </section>
+
+      <section class="page hidden" id="page-actividad">
+        <div class="filters-row">
+          <select id="act-negocio"><option value="todos">Todo el local</option><option value="autolavado">🚗 Autolavado</option><option value="barberia">💈 Barbería</option></select>
+          <select id="act-tipo"></select>
+          <input type="date" id="act-desde"><input type="date" id="act-hasta">
+          <input type="text" id="act-buscar" placeholder="Buscar cliente, factura, usuario...">
+        </div>
+        <div class="list-count" id="act-contador"></div>
+        <div class="card"><div id="act-lista" class="timeline"></div></div>
+      </section>
+
+      <!-- ============================= SISTEMA ============================= -->
+      <section class="page hidden" id="page-notificaciones">
+        <div class="toolbar">
+          <p class="text-muted small" style="flex:1">Alertas de inventario, fidelidad, ventas y promociones.</p>
+          <button class="btn btn--ghost" id="notif-limpiar">Marcar todas como leídas</button>
+        </div>
+        <div id="notif-lista-completa"></div>
+      </section>
+
+      <section class="page hidden" id="page-ayuda">
+        <div class="card">
+          <h4>Flujo de demostración sugerido</h4>
+          <p class="text-muted small" style="margin:6px 0 14px">Sigue estos pasos para presentar el prototipo a un cliente de forma ordenada.</p>
+          <ol class="help-steps">
+            <li>Inicia sesión como <strong>admin / admin123</strong> y revisa el Dashboard.</li>
+            <li>Entra a <strong>Autolavado → Nueva venta</strong>, elige a <strong>María José Reyes</strong> (4 lavados premium) y el tipo de vehículo.</li>
+            <li>Agrega un lavado y, si quieres, servicios extra: es <strong>una sola factura</strong> con varias líneas.</li>
+            <li>En <strong>Descuento / promoción</strong> elige el premio <em>36 % de descuento</em>. Con <strong>Carlos Mendoza</strong> (9 lavados premium) prueba el <em>lavado gratis</em>.</li>
+            <li>Finaliza y revisa el comprobante: verás el premio aplicado y el avance de lavados premium.</li>
+            <li>En <strong>Fidelidad → Premios y tarjetas</strong> confirma que el premio quedó canjeado.</li>
+            <li>En <strong>Inventario</strong> verifica el descuento de productos; en <strong>Actividad</strong> revisa la bitácora.</li>
+            <li>En <strong>Reportes</strong> filtra por negocio y período; abre el detalle de transacciones.</li>
+            <li>Abre <strong>Autolavado → Membresías</strong>, vende un Combo y luego factura ese lavado al cliente: se descuenta un uso solo.</li>
+            <li>Cierra sesión y entra como <strong>empleado / empleado123</strong>: solo verá Nueva venta, <strong>Cierre de caja</strong> (por área) y <strong>Mi resumen</strong>. Los cierres quedan en <strong>Reportes → Cierres de caja</strong>.</li>
+          </ol>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+
+<!-- ==========================================================================
+     TERMINALES (pantallas táctiles). Usan el mismo motor POS y la misma capa API que el panel.
+     ========================================================================== -->
+<div id="screen-terminal-autolavado" class="hidden screen-terminal">
+  <header class="terminal-topbar terminal-topbar--auto">
+    <div class="terminal-topbar__brand"><img class="terminal-topbar__logo" src="assets/logo-el-rapido.png" alt="El Rápido"><span class="ic">🚗</span> Terminal Autolavado</div>
+    <span class="terminal-topbar__user" data-user-chip></span>
+    <button type="button" class="terminal-topbar__salir" data-volver-panel>← Volver al panel</button>
+  </header>
+  <main class="terminal-main" id="terminal-autolavado-root"></main>
+</div>
+
+<div id="screen-terminal-nfc" class="hidden screen-terminal screen-terminal--nfc">
+  <button type="button" class="terminal-topbar__salir terminal-topbar__salir--flotante" data-volver-panel>← Volver al panel</button>
+  <main class="terminal-main terminal-main--nfc" id="terminal-nfc-root"></main>
+</div>
+
+<div id="screen-terminal-barberia" class="hidden screen-terminal">
+  <header class="terminal-topbar terminal-topbar--barber">
+    <div class="terminal-topbar__brand"><img class="terminal-topbar__logo" src="assets/logo-el-rapido.png" alt="El Rápido"><span class="ic">💈</span> Terminal Barbería</div>
+    <span class="terminal-topbar__user" data-user-chip></span>
+    <button type="button" class="terminal-topbar__salir" data-volver-panel>← Volver al panel</button>
+  </header>
+  <main class="terminal-main" id="terminal-barberia-root"></main>
+</div>
+
+<div id="modal-root" class="hidden"></div>
+<div id="toast-container"></div>
+
+<!-- Chart.js — usado únicamente para los gráficos del Dashboard -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.4/chart.umd.min.js"></script>
+<script>/* Tema El Rápido: tipografía y color de texto de los gráficos (solo visual) */ if (window.Chart) { Chart.defaults.font.family = "'Barlow', system-ui, sans-serif"; Chart.defaults.color = "#6E6156"; }</script>
+
+<script src="js/data.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/api.js"></script>
+<script src="js/app.js"></script>
+<script src="js/pos-core.js"></script>
+<script src="js/terminal-autolavado.js"></script>
+<script src="js/terminal-barberia.js"></script>
+<script src="js/terminal-nfc.js"></script>
+<script src="js/dashboard.js"></script>
+<script src="js/ventas.js"></script>
+<script src="js/clientes.js"></script>
+<script src="js/inventario.js"></script>
+<script src="js/fidelidad.js"></script>
+<script src="js/catalogos.js"></script>
+<script src="js/reportes.js"></script>
+<script src="js/actividad.js"></script>
+<script src="js/configuracion.js"></script>
+<script src="js/mis-ventas.js"></script>
+<script src="js/caja.js"></script>
+<script src="js/membresias.js"></script>
+</body>
+</html>
